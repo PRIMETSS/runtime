@@ -122,7 +122,7 @@ namespace System.IO.Ports.Tests
             while (dataSize <= 0)
             {
                 int lastError = Marshal.GetLastWin32Error();
-                if (lastError == ERROR_INSUFFICIENT_BUFFER || lastError == ERROR_MORE_DATA)
+                if (lastError == ERROR_INSUFFICIENT_BUFFER || lastError == ERROR_MORE_DATA || (name == "MSSECFLTSYS" && lastError == ACCESS_DENIED)) 
                 {
                     buffer = new char[buffer.Length * 2];
                     dataSize = QueryDosDevice(null, buffer, buffer.Length);
@@ -137,6 +137,7 @@ namespace System.IO.Ports.Tests
 
         public const int ERROR_INSUFFICIENT_BUFFER = 122;
         public const int ERROR_MORE_DATA = 234;
+        public const int ACCESS_DENIED = 5;
 
         [DllImport("Kernel32.dll", SetLastError = true, EntryPoint = "QueryDosDeviceW", CharSet = CharSet.Unicode)]
         private static extern int QueryDosDevice(string lpDeviceName, char[] lpTargetPath, int ucchMax);
