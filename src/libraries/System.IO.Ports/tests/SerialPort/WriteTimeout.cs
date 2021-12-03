@@ -252,7 +252,7 @@ namespace System.IO.Ports.Tests
 
             if (MAX_ACCEPTABLE_WARMUP_ZERO_TIMEOUT < sw.ElapsedMilliseconds)
             {
-                Fail("Err_2570ajdlkj!!! Write Method {0} timed out in {1}ms expected something less then {2}ms", writeMethod.Method.Name, sw.ElapsedMilliseconds, MAX_ACCEPTABLE_WARMUP_ZERO_TIMEOUT);
+                Fail("ERROR!!! Write Method {0} timed out in {1}ms expected something less then {2}ms", writeMethod.Method.Name, sw.ElapsedMilliseconds, MAX_ACCEPTABLE_WARMUP_ZERO_TIMEOUT);
             }
             sw.Reset();
 
