@@ -30,7 +30,7 @@ namespace System.IO.Ports
 
             if (System.Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") == "ARM")
             {
-                return (string[]) QueryDosDeviceComPorts(GuidDevInterfaceComPort).ToArray();
+                return (string[]) QueryDosDeviceComPorts(GuidDevInterfaceComPort).ToArray(typeof(string));
             }
             else
             {
