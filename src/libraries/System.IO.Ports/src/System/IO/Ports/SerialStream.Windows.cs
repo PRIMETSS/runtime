@@ -564,7 +564,7 @@ namespace System.IO.Ports
             }
 
             if (!portName.StartsWith("COM", StringComparison.OrdinalIgnoreCase) ||
-                !uint.TryParse(portName.Substring(3), out uint portNumber))
+                !uint.TryParse(portName.AsSpan(3).ToString(), out uint portNumber))
             {
                 throw new ArgumentException(SR.Format(SR.Arg_InvalidSerialPort, portName), nameof(portName));
             }

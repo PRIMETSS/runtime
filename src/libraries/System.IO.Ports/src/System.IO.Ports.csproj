@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>$(DefineConstants);SERIAL_PORTS</DefineConstants>
@@ -112,6 +112,9 @@ System.IO.Ports.SerialPort</PackageDescription>
              Link="Common\Interop\Windows\Kernel32\Interop.CreateFile.cs" />
     <Compile Include="$(CommonPath)Interop\Windows\Kernel32\Interop.FileOperations.cs"
              Link="Common\Interop\Windows\Kernel32\Interop.FileOperations.cs" />
+
+    <Compile Include="$(CommonPath)Interop\Windows\Kernel32\Interop.QueryDosDevice.cs"
+           Link="Common\Interop\Windows\Kernel32\Interop.QueryDosDevice.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetsUnix)' == 'true'">
@@ -150,6 +153,9 @@ System.IO.Ports.SerialPort</PackageDescription>
     <Reference Include="System.Threading.Thread" />
     <Reference Include="System.Threading.Overlapped" />
     <Reference Include="System.Threading.ThreadPool" />
+
+    <Reference Include="System.Memory" Condition="'$(TargetPlatformIdentifier)' == 'windows'" />
+
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsPartialFacadeAssembly)' != 'true'">
