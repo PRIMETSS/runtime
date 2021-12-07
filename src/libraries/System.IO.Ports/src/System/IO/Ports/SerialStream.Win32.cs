@@ -17,5 +17,15 @@ namespace System.IO.Ports
                 FileMode.Open,  // comm devices must use OPEN_EXISTING
                 Interop.Kernel32.FileOperations.FILE_FLAG_OVERLAPPED);
         }
+
+        public SafeFileHandle OpenPort(string portName)
+        {
+            return Interop.Kernel32.CreateFile(
+                portName.ToString(CultureInfo.InvariantCulture),
+                Interop.Kernel32.GenericOperations.GENERIC_READ | Interop.Kernel32.GenericOperations.GENERIC_WRITE,
+                FileShare.None, // comm devices must be opened w/exclusive-access
+                FileMode.Open,  // comm devices must use OPEN_EXISTING
+                Interop.Kernel32.FileOperations.FILE_FLAG_OVERLAPPED);
+        }
     }
 }

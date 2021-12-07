@@ -563,15 +563,15 @@ namespace System.IO.Ports
                 throw new ArgumentNullException(nameof(portName));
             }
 
-            if (!portName.StartsWith("COM", StringComparison.OrdinalIgnoreCase) ||
-                !uint.TryParse(portName.AsSpan(3).ToString(), out uint portNumber))
+            // Windows valid Com Port names "COMx" or for QueryDosDevice() Interop on Win10Iot also starting with "\\?\" which is a valid port name prefix
+            if ((!portName.StartsWith("COM", StringComparison.OrdinalIgnoreCase) || !uint.TryParse(portName.AsSpan(3).ToString(), out uint portNumber)) &&
+                !portName.StartsWith(@"\\?\"))
             {
                 throw new ArgumentException(SR.Format(SR.Arg_InvalidSerialPort, portName), nameof(portName));
             }
 
             // Error checking done in SerialPort.
-
-            SafeFileHandle tempHandle = OpenPort(portNumber);
+            SafeFileHandle tempHandle = OpenPort(portName); // OpenPort(portNumber);
 
             if (tempHandle.IsInvalid)
             {
