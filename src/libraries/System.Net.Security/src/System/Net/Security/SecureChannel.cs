@@ -695,13 +695,11 @@ namespace System.Net.Security
                 _sslAuthenticationOptions.CertificateContext = SslStreamCertificateContext.Create(selectedCert);
             }
 
-            Debug.Assert(_sslAuthenticationOptions.CertificateContext != null);
             //
             // Note selectedCert is a safe ref possibly cloned from the user passed Cert object
             //
             byte[] guessedThumbPrint = selectedCert.GetCertHash();
-            bool sendTrustedList = _sslAuthenticationOptions.CertificateContext!.Trust?._sendTrustInHandshake ?? false;
-            SafeFreeCredentials? cachedCredentialHandle = SslSessionsCache.TryCachedCredential(guessedThumbPrint, _sslAuthenticationOptions.EnabledSslProtocols, _sslAuthenticationOptions.IsServer, _sslAuthenticationOptions.EncryptionPolicy, sendTrustedList);
+            SafeFreeCredentials? cachedCredentialHandle = SslSessionsCache.TryCachedCredential(guessedThumbPrint, _sslAuthenticationOptions.EnabledSslProtocols, _sslAuthenticationOptions.IsServer, _sslAuthenticationOptions.EncryptionPolicy);
 
             if (cachedCredentialHandle != null)
             {
@@ -765,7 +763,6 @@ namespace System.Net.Security
             byte[]? result = Array.Empty<byte>();
             SecurityStatusPal status = default;
             bool cachedCreds = false;
-            bool sendTrustList = false;
             byte[]? thumbPrint = null;
 
             //
@@ -782,11 +779,6 @@ namespace System.Net.Security
                         cachedCreds = _sslAuthenticationOptions.IsServer
                                         ? AcquireServerCredentials(ref thumbPrint)
                                         : AcquireClientCredentials(ref thumbPrint);
-
-                        if (cachedCreds && _sslAuthenticationOptions.IsServer)
-                        {
-                            sendTrustList = _sslAuthenticationOptions.CertificateContext?.Trust?._sendTrustInHandshake ?? false;
-                        }
                     }
 
                     if (_sslAuthenticationOptions.IsServer)
@@ -828,7 +820,7 @@ namespace System.Net.Security
                     //
                     if (!cachedCreds && _securityContext != null && !_securityContext.IsInvalid && _credentialsHandle != null && !_credentialsHandle.IsInvalid)
                     {
-                        SslSessionsCache.CacheCredential(_credentialsHandle, thumbPrint, _sslAuthenticationOptions.EnabledSslProtocols, _sslAuthenticationOptions.IsServer, _sslAuthenticationOptions.EncryptionPolicy, sendTrustList);
+                        SslSessionsCache.CacheCredential(_credentialsHandle, thumbPrint, _sslAuthenticationOptions.EnabledSslProtocols, _sslAuthenticationOptions.IsServer, _sslAuthenticationOptions.EncryptionPolicy);
                     }
                 }
             }

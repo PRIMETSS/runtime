@@ -19,8 +19,7 @@ stages:
       publishUsingPipelines: true
       dependsOn: PrepareSignedArtifacts
       pool:
-        name: NetCore1ESPool-Svc-Internal
-        demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019
+        vmImage: vs2017-win2016
 
 # Stages-based publishing entry point
 - template: /eng/common/templates/post-build/post-build.yml

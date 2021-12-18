@@ -1051,7 +1051,7 @@ namespace System.Net.Http.Headers
             throw new InvalidOperationException(SR.Format(SR.net_http_headers_not_allowed_header_name, name));
         }
 
-        internal bool TryGetHeaderDescriptor(string name, out HeaderDescriptor descriptor)
+        private bool TryGetHeaderDescriptor(string name, out HeaderDescriptor descriptor)
         {
             if (string.IsNullOrEmpty(name))
             {

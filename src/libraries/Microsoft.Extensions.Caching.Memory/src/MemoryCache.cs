@@ -395,10 +395,9 @@ namespace Microsoft.Extensions.Caching.Memory
         private void Compact(long removalSizeTarget, Func<CacheEntry, long> computeEntrySize)
         {
             var entriesToRemove = new List<CacheEntry>();
-            // cache LastAccessed outside of the CacheEntry so it is stable during compaction
-            var lowPriEntries = new List<CompactPriorityEntry>();
-            var normalPriEntries = new List<CompactPriorityEntry>();
-            var highPriEntries = new List<CompactPriorityEntry>();
+            var lowPriEntries = new List<CacheEntry>();
+            var normalPriEntries = new List<CacheEntry>();
+            var highPriEntries = new List<CacheEntry>();
             long removedSize = 0;
 
             // Sort items by expired & priority status
@@ -416,13 +415,13 @@ namespace Microsoft.Extensions.Caching.Memory
                     switch (entry.Priority)
                     {
                         case CacheItemPriority.Low:
-                            lowPriEntries.Add(new CompactPriorityEntry(entry, entry.LastAccessed));
+                            lowPriEntries.Add(entry);
                             break;
                         case CacheItemPriority.Normal:
-                            normalPriEntries.Add(new CompactPriorityEntry(entry, entry.LastAccessed));
+                            normalPriEntries.Add(entry);
                             break;
                         case CacheItemPriority.High:
-                            highPriEntries.Add(new CompactPriorityEntry(entry, entry.LastAccessed));
+                            highPriEntries.Add(entry);
                             break;
                         case CacheItemPriority.NeverRemove:
                             break;
@@ -446,7 +445,7 @@ namespace Microsoft.Extensions.Caching.Memory
             // ?. Items with the soonest absolute expiration.
             // ?. Items with the soonest sliding expiration.
             // ?. Larger objects - estimated by object graph size, inaccurate.
-            static void ExpirePriorityBucket(ref long removedSize, long removalSizeTarget, Func<CacheEntry, long> computeEntrySize, List<CacheEntry> entriesToRemove, List<CompactPriorityEntry> priorityEntries)
+            static void ExpirePriorityBucket(ref long removedSize, long removalSizeTarget, Func<CacheEntry, long> computeEntrySize, List<CacheEntry> entriesToRemove, List<CacheEntry> priorityEntries)
             {
                 // Do we meet our quota by just removing expired entries?
                 if (removalSizeTarget <= removedSize)
@@ -459,10 +458,9 @@ namespace Microsoft.Extensions.Caching.Memory
                 // TODO: Refine policy
 
                 // LRU
-                priorityEntries.Sort(static (e1, e2) => e1.LastAccessed.CompareTo(e2.LastAccessed));
-                foreach (CompactPriorityEntry priorityEntry in priorityEntries)
+                priorityEntries.Sort((e1, e2) => e1.LastAccessed.CompareTo(e2.LastAccessed));
+                foreach (CacheEntry entry in priorityEntries)
                 {
-                    CacheEntry entry = priorityEntry.Entry;
                     entry.SetExpired(EvictionReason.Capacity);
                     entriesToRemove.Add(entry);
                     removedSize += computeEntrySize(entry);
@@ -472,20 +470,6 @@ namespace Microsoft.Extensions.Caching.Memory
                         break;
                     }
                 }
-            }
-        }
-
-        // use a struct instead of a ValueTuple to avoid adding a new dependency
-        // on System.ValueTuple on .NET Framework in a servicing release
-        private readonly struct CompactPriorityEntry
-        {
-            public readonly CacheEntry Entry;
-            public readonly DateTimeOffset LastAccessed;
-
-            public CompactPriorityEntry(CacheEntry entry, DateTimeOffset lastAccessed)
-            {
-                Entry = entry;
-                LastAccessed = lastAccessed;
             }
         }
 
