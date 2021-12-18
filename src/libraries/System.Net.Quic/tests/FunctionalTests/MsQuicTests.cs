@@ -104,6 +104,7 @@ namespace System.Net.Quic.Tests
         }
 
         [Fact]
+        [PlatformSpecific(TestPlatforms.Windows)]
         public async Task UntrustedClientCertificateFails()
         {
             var listenerOptions = new QuicListenerOptions();
@@ -329,6 +330,7 @@ namespace System.Net.Quic.Tests
         }
 
         [Theory]
+        [PlatformSpecific(TestPlatforms.Windows)]
         [InlineData(true)]
         // [InlineData(false)] [ActiveIssue("https://github.com/dotnet/runtime/issues/57308")]
         public async Task ConnectWithClientCertificate(bool sendCerttificate)

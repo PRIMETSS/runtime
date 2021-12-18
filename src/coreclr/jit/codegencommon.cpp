@@ -486,14 +486,13 @@ regMaskTP CodeGenInterface::genGetRegMask(const LclVarDsc* varDsc)
 
     assert(varDsc->lvIsInReg());
 
-    regNumber reg = varDsc->GetRegNum();
-    if (genIsValidFloatReg(reg))
+    if (varTypeUsesFloatReg(varDsc->TypeGet()))
     {
-        regMask = genRegMaskFloat(reg, varDsc->GetRegisterType());
+        regMask = genRegMaskFloat(varDsc->GetRegNum(), varDsc->TypeGet());
     }
     else
     {
-        regMask = genRegMask(reg);
+        regMask = genRegMask(varDsc->GetRegNum());
     }
     return regMask;
 }
@@ -7149,9 +7148,8 @@ void CodeGen::genFnProlog()
 
         if (isInReg)
         {
-            regNumber regForVar = varDsc->GetRegNum();
-            regMaskTP regMask   = genRegMask(regForVar);
-            if (!genIsValidFloatReg(regForVar))
+            regMaskTP regMask = genRegMask(varDsc->GetRegNum());
+            if (!varDsc->IsFloatRegType())
             {
                 initRegs |= regMask;
 
@@ -12553,17 +12551,6 @@ void CodeGen::genPoisonFrame(regMaskTP regLiveIn)
 
         assert(varDsc->lvOnFrame);
 
-        int size = (int)compiler->lvaLclSize(varNum);
-
-        if ((size / TARGET_POINTER_SIZE) > 16)
-        {
-            // For very large structs the offsets in the movs we emit below can
-            // grow too large to be handled properly by JIT. Furthermore, while
-            // this is only debug code, for very large structs this can bloat
-            // the code too much due to the singular movs used.
-            continue;
-        }
-
         if (!hasPoisonImm)
         {
 #ifdef TARGET_64BIT
@@ -12581,7 +12568,8 @@ void CodeGen::genPoisonFrame(regMaskTP regLiveIn)
 #else
         int addr = 0;
 #endif
-        int end = addr + size;
+        int size = (int)compiler->lvaLclSize(varNum);
+        int end  = addr + size;
         for (int offs = addr; offs < end;)
         {
 #ifdef TARGET_64BIT
